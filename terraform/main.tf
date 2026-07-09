@@ -283,7 +283,7 @@ resource "aws_ebs_volume" "storage_vol_1" {
 }
 
 resource "aws_volume_attachment" "storage_attach_1" {
-  device_name = "/dev/sdb"
+  device_name = "/dev/sdh"
   volume_id   = aws_ebs_volume.storage_vol_1.id
   instance_id = aws_instance.vm_storage_1.id
 }
@@ -326,7 +326,7 @@ resource "aws_ebs_volume" "storage_vol_2" {
 }
 
 resource "aws_volume_attachment" "storage_attach_2" {
-  device_name = "/dev/sdb"
+  device_name = "/dev/sdh"
   volume_id   = aws_ebs_volume.storage_vol_2.id
   instance_id = aws_instance.vm_storage_2.id
 }
@@ -356,3 +356,4 @@ resource "aws_instance" "grafana" {
     Name = "EC2-7-Grafana"
   }
 }
+

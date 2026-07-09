@@ -4,8 +4,12 @@
     vm_storage_device: >-
       {% if 'nvme1n1' in ansible_devices %}
       /dev/nvme1n1
-      {% elif 'xvdb' in ansible_devices %}
-      /dev/xvdb
+      {% elif 'nvme2n1' in ansible_devices %}
+      /dev/nvme2n1
+      {% elif 'xvdh' in ansible_devices %}
+      /dev/xvdh
+      {% elif 'sdh' in ansible_devices %}
+      /dev/sdh
       {% else %}
       /dev/sdb
       {% endif %}
@@ -81,3 +85,5 @@
     name: vmstorage
     state: started
     enabled: yes
+
+
