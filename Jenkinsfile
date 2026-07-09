@@ -86,6 +86,7 @@ pipeline {
             }
             steps {
                 // Copy the SSH key from Jenkins credentials to the workspace and set correct permissions
+                sh 'rm -f ansible/monitoring-key.pem'
                 sh 'cp $SSH_KEY_CREDENTIAL ansible/monitoring-key.pem'
                 sh 'chmod 400 ansible/monitoring-key.pem'
 
