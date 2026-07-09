@@ -1,0 +1,83 @@
+---
+- name: Determine storage device dynamically
+  set_fact:
+    vm_storage_device: >-
+      {% if 'nvme1n1' in ansible_devices %}
+      /dev/nvme1n1
+      {% elif 'xvdb' in ansible_devices %}
+      /dev/xvdb
+      {% else %}
+      /dev/sdb
+      {% endif %}
+
+- name: Ensure filesystem exists on storage device
+  filesystem:
+    fstype: ext4
+    dev: "{{ vm_storage_device }}"
+
+- name: Create mount directory for vmstorage
+  file:
+    path: /data/vmstorage
+    state: directory
+    mode: '0755'
+
+- name: Mount dedicated EBS volume
+  mount:
+    path: /data/vmstorage
+    src: "{{ vm_storage_device }}"
+    fstype: ext4
+    state: mounted
+
+- name: Create victoria-metrics group
+  group:
+    name: victoria-metrics
+    state: present
+
+- name: Create victoria-metrics user
+  user:
+    name: victoria-metrics
+    group: victoria-metrics
+    shell: /sbin/nologin
+    system: yes
+    state: present
+
+- name: Create data directory for vmstorage database
+  file:
+    path: /data/vmstorage/db
+    state: directory
+    owner: victoria-metrics
+    group: victoria-metrics
+    mode: '0755'
+
+- name: Download VictoriaMetrics Cluster archive
+  get_url:
+    url: "https://github.com/VictoriaMetrics/VictoriaMetrics/releases/download/v1.101.0/victoria-metrics-amd64-v1.101.0-cluster.tar.gz"
+    dest: "/tmp/victoria-metrics-cluster.tar.gz"
+
+- name: Unarchive VictoriaMetrics Cluster package
+  unarchive:
+    src: "/tmp/victoria-metrics-cluster.tar.gz"
+    dest: "/tmp"
+    remote_src: yes
+
+- name: Copy vmstorage binary to bin directory
+  copy:
+    src: "/tmp/vmstorage-prod"
+    dest: "/usr/local/bin/vmstorage"
+    mode: '0755'
+    remote_src: yes
+
+- name: Create systemd service file for vmstorage
+  template:
+    src: vmstorage.service.j2
+    dest: /etc/systemd/system/vmstorage.service
+
+- name: Reload systemd daemon
+  systemd:
+    daemon_reload: yes
+
+- name: Start and enable vmstorage service
+  systemd:
+    name: vmstorage
+    state: started
+    enabled: yes

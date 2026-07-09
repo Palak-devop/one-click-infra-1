@@ -1,0 +1,62 @@
+---
+- name: Create victoria-metrics group
+  group:
+    name: victoria-metrics
+    state: present
+
+- name: Create victoria-metrics user
+  user:
+    name: victoria-metrics
+    group: victoria-metrics
+    shell: /sbin/nologin
+    system: yes
+    state: present
+
+- name: Create vmagent configuration directory
+  file:
+    path: /etc/vmagent
+    state: directory
+    owner: victoria-metrics
+    group: victoria-metrics
+    mode: '0755'
+
+- name: Download VictoriaMetrics Utils archive
+  get_url:
+    url: "https://github.com/VictoriaMetrics/VictoriaMetrics/releases/download/v1.101.0/vmutils-amd64-v1.101.0.tar.gz"
+    dest: "/tmp/vmutils.tar.gz"
+
+- name: Unarchive VictoriaMetrics Utils package
+  unarchive:
+    src: "/tmp/vmutils.tar.gz"
+    dest: "/tmp"
+    remote_src: yes
+
+- name: Copy vmagent binary to bin directory
+  copy:
+    src: "/tmp/vmagent-prod"
+    dest: "/usr/local/bin/vmagent"
+    mode: '0755'
+    remote_src: yes
+
+- name: Create vmagent scraping configuration file
+  template:
+    src: vmagent.yml.j2
+    dest: /etc/vmagent/vmagent.yml
+    owner: victoria-metrics
+    group: victoria-metrics
+    mode: '0644'
+
+- name: Create systemd service file for vmagent
+  template:
+    src: vmagent.service.j2
+    dest: /etc/systemd/system/vmagent.service
+
+- name: Reload systemd daemon
+  systemd:
+    daemon_reload: yes
+
+- name: Start and enable vmagent service
+  systemd:
+    name: vmagent
+    state: started
+    enabled: yes

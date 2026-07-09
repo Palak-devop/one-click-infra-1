@@ -1,0 +1,97 @@
+---
+- name: Install software-properties-common
+  apt:
+    name: software-properties-common
+    state: present
+
+- name: Import Grafana GPG key
+  apt_key:
+    url: https://apt.grafana.com/gpg.key
+    state: present
+
+- name: Add Grafana repository
+  apt_repository:
+    repo: "deb https://apt.grafana.com stable main"
+    state: present
+    filename: grafana
+
+- name: Install Grafana
+  apt:
+    name: grafana
+    state: present
+    update_cache: yes
+
+- name: Ensure Grafana provisioning directories exist
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: root
+    group: grafana
+    mode: '0755'
+  loop:
+    - /etc/grafana/provisioning/datasources
+    - /etc/grafana/provisioning/dashboards
+
+- name: Provision VictoriaMetrics Cluster data sources
+  template:
+    src: datasources.yaml.j2
+    dest: /etc/grafana/provisioning/datasources/datasources.yaml
+    owner: root
+    group: grafana
+    mode: '0640'
+  notify: Restart Grafana
+
+- name: Provision Dashboards config
+  copy:
+    content: |
+      apiVersion: 1
+      providers:
+        - name: 'default'
+          orgId: 1
+          folder: ''
+          type: file
+          disableDeletion: false
+          editable: true
+          options:
+            path: /var/lib/grafana/dashboards
+    dest: /etc/grafana/provisioning/dashboards/dashboards.yaml
+    owner: root
+    group: grafana
+    mode: '0640'
+  notify: Restart Grafana
+
+- name: Ensure dashboard JSON destination directory exists
+  file:
+    path: /var/lib/grafana/dashboards
+    state: directory
+    owner: grafana
+    group: grafana
+    mode: '0755'
+
+- name: Copy Node Exporter dashboard JSON file
+  copy:
+    src: node-dashboard.json
+    dest: /var/lib/grafana/dashboards/node-dashboard.json
+    owner: grafana
+    group: grafana
+    mode: '0644'
+  notify: Restart Grafana
+
+- name: Copy Nginx dashboard JSON file
+  copy:
+    src: nginx-dashboard.json
+    dest: /var/lib/grafana/dashboards/nginx-dashboard.json
+    owner: grafana
+    group: grafana
+    mode: '0644'
+  notify: Restart Grafana
+
+- name: Start and enable Grafana service
+  systemd:
+    name: grafana-server
+    state: started
+    enabled: yes
+
+# Handler run
+- name: Flush handlers to apply Grafana restarts
+  meta: flush_handlers

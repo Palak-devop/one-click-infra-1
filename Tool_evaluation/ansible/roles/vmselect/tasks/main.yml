@@ -1,0 +1,46 @@
+---
+- name: Create victoria-metrics group
+  group:
+    name: victoria-metrics
+    state: present
+
+- name: Create victoria-metrics user
+  user:
+    name: victoria-metrics
+    group: victoria-metrics
+    shell: /sbin/nologin
+    system: yes
+    state: present
+
+- name: Download VictoriaMetrics Cluster archive
+  get_url:
+    url: "https://github.com/VictoriaMetrics/VictoriaMetrics/releases/download/v1.101.0/victoria-metrics-amd64-v1.101.0-cluster.tar.gz"
+    dest: "/tmp/victoria-metrics-cluster.tar.gz"
+
+- name: Unarchive VictoriaMetrics Cluster package
+  unarchive:
+    src: "/tmp/victoria-metrics-cluster.tar.gz"
+    dest: "/tmp"
+    remote_src: yes
+
+- name: Copy vmselect binary to bin directory
+  copy:
+    src: "/tmp/vmselect-prod"
+    dest: "/usr/local/bin/vmselect"
+    mode: '0755'
+    remote_src: yes
+
+- name: Create systemd service file for vmselect
+  template:
+    src: vmselect.service.j2
+    dest: /etc/systemd/system/vmselect.service
+
+- name: Reload systemd daemon
+  systemd:
+    daemon_reload: yes
+
+- name: Start and enable vmselect service
+  systemd:
+    name: vmselect
+    state: started
+    enabled: yes

@@ -1,0 +1,45 @@
+---
+- name: Download Nginx Exporter binary
+  get_url:
+    url: "https://github.com/nginxinc/nginx-prometheus-exporter/releases/download/v1.1.0/nginx-prometheus-exporter_1.1.0_linux_amd64.tar.gz"
+    dest: "/tmp/nginx-prometheus-exporter_1.1.0_linux_amd64.tar.gz"
+
+- name: Unarchive Nginx Exporter
+  unarchive:
+    src: "/tmp/nginx-prometheus-exporter_1.1.0_linux_amd64.tar.gz"
+    dest: "/tmp"
+    remote_src: yes
+
+- name: Copy Nginx Exporter binary to bin directory
+  copy:
+    src: "/tmp/nginx-prometheus-exporter"
+    dest: "/usr/local/bin/nginx-prometheus-exporter"
+    mode: '0755'
+    remote_src: yes
+
+- name: Create systemd service file for Nginx Exporter
+  copy:
+    content: |
+      [Unit]
+      Description=Nginx Prometheus Exporter
+      Wants=network-online.target
+      After=network-online.target
+
+      [Service]
+      User=nobody
+      ExecStart=/usr/local/bin/nginx-prometheus-exporter -nginx.scrape-uri=http://127.0.0.1:80/nginx_status -web.listen-address=:9113
+      Restart=always
+
+      [Install]
+      WantedBy=multi-user.target
+    dest: "/etc/systemd/system/nginx_exporter.service"
+
+- name: Reload systemd daemon
+  systemd:
+    daemon_reload: yes
+
+- name: Start and enable Nginx Exporter service
+  systemd:
+    name: nginx_exporter
+    state: started
+    enabled: yes

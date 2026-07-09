@@ -1,0 +1,17 @@
+[Unit]
+Description=VictoriaMetrics Cluster Ingestion Node (vminsert)
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+User=victoria-metrics
+Group=victoria-metrics
+Type=simple
+ExecStart=/usr/local/bin/vminsert \
+  -httpListenAddr=:8480 \
+  -storageNode={% for host in groups['vm_storage'] %}{{ hostvars[host]['ansible_host'] }}:8400{% if not loop.last %},{% endif %}{% endfor %}
+Restart=always
+LimitNOFILE=65536
+
+[Install]
+WantedBy=multi-user.target

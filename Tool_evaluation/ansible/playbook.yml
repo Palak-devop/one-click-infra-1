@@ -1,0 +1,38 @@
+---
+- name: Apply common configurations and Node Exporter
+  hosts: private_hosts
+  become: yes
+  roles:
+    - common
+
+- name: Deploy VictoriaMetrics Storage Nodes
+  hosts: vm_storage
+  become: yes
+  roles:
+    - vmstorage
+
+- name: Deploy VictoriaMetrics Ingestion & Query Nodes
+  hosts: vm_insert_select
+  become: yes
+  roles:
+    - vminsert
+    - vmselect
+
+- name: Deploy Nginx Web Server & Exporter
+  hosts: monitoring
+  become: yes
+  roles:
+    - nginx
+    - nginx_exporter
+
+- name: Deploy vmagent (Metrics Collector)
+  hosts: monitoring
+  become: yes
+  roles:
+    - vmagent
+
+- name: Deploy Grafana Server
+  hosts: grafana
+  become: yes
+  roles:
+    - grafana
