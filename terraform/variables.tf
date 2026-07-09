@@ -43,24 +43,24 @@ variable "allowed_ssh_cidr" {
 variable "jenkins_instance_type" {
   description = "Instance type for Jenkins/Bastion host"
   type        = string
-  default     = "t2.micro" # Free Tier eligible
+  default     = "t3.micro" # Free Tier eligible
 }
 
 variable "vm_instance_type" {
   description = "Instance type for VictoriaMetrics cluster nodes"
   type        = string
-  default     = "t2.micro" # Free Tier eligible
+  default     = "t3.micro" # Free Tier eligible
 }
 
 variable "monitoring_instance_type" {
   description = "Instance type for Nginx and exporter nodes"
   type        = string
-  default     = "t2.micro" # Free Tier eligible
+  default     = "t3.micro" # Free Tier eligible
 }
 
 variable "grafana_instance_type" {
   description = "Instance type for Grafana server"
   type        = string
-  default     = "t2.micro" # Free Tier eligible
+  default     = "t3.micro" # Free Tier eligible
 }
 

@@ -8,6 +8,10 @@ pipeline {
     environment {
         AWS_CREDENTIALS = credentials('aws-credentials') // Jenkins AWS Credentials ID
         SSH_KEY_CREDENTIAL = credentials('monitoring-ssh-key') // Jenkins SSH Key Credential ID (Secret File)
+        TF_VAR_jenkins_instance_type = "t3.micro"
+        TF_VAR_vm_instance_type = "t3.micro"
+        TF_VAR_monitoring_instance_type = "t3.micro"
+        TF_VAR_grafana_instance_type = "t3.micro"
     }
 
     stages {

@@ -85,5 +85,3 @@
     name: vmstorage
     state: started
     enabled: yes
-
-
