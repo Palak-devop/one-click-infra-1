@@ -75,7 +75,6 @@ pipeline {
                     -e "s/\\${vm_storage_2_private_ip}/$vm_storage_2_ip/g" \
                     -e "s/\\${monitoring_private_ip}/$monitoring_ip/g" \
                     -e "s/\\${grafana_private_ip}/$grafana_ip/g" \
-                    -e "s|\\${workspace}|$WORKSPACE|g" \
                     ansible/inventory.ini.tpl > ansible/inventory.ini
                 '''
             }
