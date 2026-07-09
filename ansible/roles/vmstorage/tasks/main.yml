@@ -1,18 +1,7 @@
 ---
 - name: Determine storage device dynamically
   set_fact:
-    vm_storage_device: >-
-      {% if 'nvme1n1' in ansible_devices %}
-      /dev/nvme1n1
-      {% elif 'nvme2n1' in ansible_devices %}
-      /dev/nvme2n1
-      {% elif 'xvdh' in ansible_devices %}
-      /dev/xvdh
-      {% elif 'sdh' in ansible_devices %}
-      /dev/sdh
-      {% else %}
-      /dev/sdb
-      {% endif %}
+    vm_storage_device: "{{ '/dev/nvme1n1' if 'nvme1n1' in ansible_devices else '/dev/nvme2n1' if 'nvme2n1' in ansible_devices else '/dev/xvdh' if 'xvdh' in ansible_devices else '/dev/sdh' if 'sdh' in ansible_devices else '/dev/sdb' }}"
 
 - name: Ensure filesystem exists on storage device
   filesystem:
