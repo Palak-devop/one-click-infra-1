@@ -7,11 +7,7 @@ After=network-online.target
 User=victoria-metrics
 Group=victoria-metrics
 Type=simple
-ExecStart=/usr/local/bin/vmagent \
-  -promscrape.config=/etc/vmagent/vmagent.yml \
-  {% for host in groups['vm_insert_select'] %}
-  -remoteWrite.url=http://{{ hostvars[host]['ansible_host'] }}:8480/insert/0/prometheus/api/v1/write{% if not loop.last %} \{% endif %}
-  {% endfor %}
+ExecStart=/usr/local/bin/vmagent -promscrape.config=/etc/vmagent/vmagent.yml {% for host in groups['vm_insert_select'] %}-remoteWrite.url=http://{{ hostvars[host]['ansible_host'] }}:8480/insert/0/prometheus/api/v1/write {% endfor %}
 Restart=always
 LimitNOFILE=65536
 
