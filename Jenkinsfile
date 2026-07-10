@@ -59,6 +59,7 @@ pipeline {
                 expression { params.ACTION == 'apply' }
             }
             steps {
+                sh 'rm -f ansible/inventory.ini'
                 sh '''
                 bastion_ip=$(terraform -chdir=terraform output -raw jenkins_bastion_public_ip)
                 vm_insert_select_1_ip=$(terraform -chdir=terraform output -raw vm_insert_select_1_private_ip)
@@ -68,13 +69,13 @@ pipeline {
                 monitoring_ip=$(terraform -chdir=terraform output -raw monitoring_private_ip)
                 grafana_ip=$(terraform -chdir=terraform output -raw grafana_private_ip)
 
-                sed -e "s/\\${bastion_public_ip}/$bastion_ip/g" \
-                    -e "s/\\${vm_insert_select_1_private_ip}/$vm_insert_select_1_ip/g" \
-                    -e "s/\\${vm_storage_1_private_ip}/$vm_storage_1_ip/g" \
-                    -e "s/\\${vm_insert_select_2_private_ip}/$vm_insert_select_2_ip/g" \
-                    -e "s/\\${vm_storage_2_private_ip}/$vm_storage_2_ip/g" \
-                    -e "s/\\${monitoring_private_ip}/$monitoring_ip/g" \
-                    -e "s/\\${grafana_private_ip}/$grafana_ip/g" \
+                sed -e 's/\${bastion_public_ip}/'"$bastion_ip"'/g' \
+                    -e 's/\${vm_insert_select_1_private_ip}/'"$vm_insert_select_1_ip"'/g' \
+                    -e 's/\${vm_storage_1_private_ip}/'"$vm_storage_1_ip"'/g' \
+                    -e 's/\${vm_insert_select_2_private_ip}/'"$vm_insert_select_2_ip"'/g' \
+                    -e 's/\${vm_storage_2_private_ip}/'"$vm_storage_2_ip"'/g' \
+                    -e 's/\${monitoring_private_ip}/'"$monitoring_ip"'/g' \
+                    -e 's/\${grafana_private_ip}/'"$grafana_ip"'/g' \
                     ansible/inventory.ini.tpl > ansible/inventory.ini
                 '''
             }
