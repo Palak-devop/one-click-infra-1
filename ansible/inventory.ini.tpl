@@ -23,4 +23,4 @@ grafana
 
 [private_hosts:vars]
 ansible_ssh_private_key_file=./monitoring-key.pem
-ansible_ssh_common_args='-o StrictHostKeyChecking=no -o PasswordAuthentication=no -o KbdInteractiveAuthentication=no'
+ansible_ssh_common_args='-o StrictHostKeyChecking=no -o PasswordAuthentication=no -o KbdInteractiveAuthentication=no -o ProxyCommand="ssh -o StrictHostKeyChecking=no -o PasswordAuthentication=no -o KbdInteractiveAuthentication=no -W %h:%p -q ubuntu@${bastion_public_ip} -i ./monitoring-key.pem"'
