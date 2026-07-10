@@ -1,6 +1,10 @@
 pipeline {
     agent any
 
+    options {
+        buildDiscarder(logRotator(numToKeepStr: '5'))
+    }
+
     parameters {
         choice(name: 'ACTION', choices: ['apply', 'destroy'], description: 'Terraform Action to Perform')
     }
