@@ -22,7 +22,7 @@
 
 - name: Download VictoriaMetrics Utils archive
   get_url:
-    url: "https://github.com/VictoriaMetrics/VictoriaMetrics/releases/download/v1.101.0/vmutils-amd64-v1.101.0.tar.gz"
+    url: "https://github.com/VictoriaMetrics/VictoriaMetrics/releases/download/v1.101.0/vmutils-linux-amd64-v1.101.0.tar.gz"
     dest: "/tmp/vmutils.tar.gz"
 
 - name: Unarchive VictoriaMetrics Utils package
